@@ -1,11 +1,11 @@
 import pytest
 from selenium import webdriver
-from selenium.webdriver.support.wait import WebDriverWait
 from page_objects.orders_page import OrdersPage
 from page_objects.stellar_burger_page import Stellar_burger_page
 from page_objects.constructor_page import ConstructorPage
 from page_objects.login_page import LoginPage
 from url import stellar_burgers_base_url_page
+from data.user_data import user_creds as creds
 
 
 class BrowserLauncher:
@@ -66,9 +66,10 @@ def create_order(driver, login):
     constr_page.wait_for_counter_update(main_page.locators.INGREDIENT_COUNTER, start_counter_value)
     constr_page.click_place_an_order_button()
 
-    WebDriverWait(main_page.driver, 5).until(
-        lambda driver: main_page.order_modal_window_is_visible() and order_page.get_current_order_number() != "")
-
+    main_page.wait_for_condition(
+        lambda drv: main_page.order_modal_window_is_visible() and order_page.get_current_order_number() != "",
+        timeout=5
+    )
     return order_page.get_current_order_number()
 
 @pytest.hookimpl(tryfirst=True)
@@ -77,7 +78,22 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope="session")
 def user_creds():
-    return {
-        "email": "storozhenko_20@gmail.com",
-        "password": "gfhjkm123"
-    }
+    return creds
+
+@pytest.fixture
+def create_order2(driver, login):
+    main_page = Stellar_burger_page(driver)
+    constr_page = ConstructorPage(driver)
+
+    # получаем стартовое значение каунтера
+    start_counter_value = constr_page.get_ingredient_counter_value(main_page.locators.INGREDIENT_COUNTER)
+
+    # добавляем ингредиент
+    constr_page.move_ingredient(main_page.locators.INGREDIENT, main_page.locators.ORDER_AREA)
+
+    # ждём обновления счётчика
+    constr_page.wait_for_counter_update(main_page.locators.INGREDIENT_COUNTER, start_counter_value)
+
+    # возвращаем старое и новое значение
+    new_count = constr_page.get_ingredient_counter_value(main_page.locators.INGREDIENT_COUNTER)
+    return start_counter_value, new_count

@@ -1,6 +1,4 @@
 import allure
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from page_objects.stellar_burger_page import Stellar_burger_page
 from page_objects.login_page import LoginPage
 from page_objects.base_page import BasePage
@@ -23,7 +21,6 @@ class TestRecoverPassword:
         with allure.step("Проверяем, что URL страницы содержит путь восстановления пароля"):
             main_page.wait_for_url_contains(recover_password_page)
             assert recover_password_page in driver.current_url
-
 
     @allure.title('Проверка ввода почты и клик по кнопке «Восстановить»')
     def test_restore_password_process(self, driver):
@@ -49,11 +46,13 @@ class TestRecoverPassword:
         login_page.click_recover_password()
         login_page.send_email_to_input(login_page.locators.EMAIL_FIELD)
         login_page.click_recover_button()
-        base_page.click_and_wait_element(login_page.locators.PASSWORD_FIELD)
-        login_page.send_password_to_input(login_page.locators.PASSWORD_FIELD)
-        base_page.click_and_wait_element(login_page.locators.HIDE_GLASS)
-        active_field = WebDriverWait(login_page.driver, 5).until(
-            EC.presence_of_element_located(login_page.locators.HIDE_GLASS))
 
-        assert active_field.get_attribute, "Пароль не подсвечен"
+        base_page.click(login_page.locators.PASSWORD_FIELD)
+        login_page.send_password_to_input(login_page.locators.PASSWORD_FIELD)
+
+        base_page.click(login_page.locators.HIDE_GLASS)
+
+        active_field = base_page.wait_for_visible(login_page.locators.HIDE_GLASS)
+
+        assert active_field.get_attribute("class"), "Пароль не подсвечен"
         assert active_field.is_enabled(), "Пароль не активный"

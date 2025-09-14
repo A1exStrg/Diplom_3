@@ -40,23 +40,23 @@ class Stellar_burger_page(BasePage):
         except TimeoutException:
             pass
 
-    """Клик по ссылке 'Зарегистрироваться'"""
+    @allure.title('Клик по ссылке "Зарегистрироваться"')
     def open_register_link(self):
         self.click_and_wait_element(self.locators.REGISTER_LINK)
 
-    """Клик по кнопке 'Зарегистрироваться'"""
+    @allure.title('Клик по кнопке "Зарегистрироваться"')
     def click_register_button(self):
         try:
             self.driver.find_element(*self.locators.REGISTER_BUTTON).click()
         except Exception:
             print("Кнопка регистрации не найдена")
 
-    """Клик по кнопке 'Войти'"""
+    @allure.title('Клик по кнопке "Войти"')
     def click_login_button(self):
         WebDriverWait(self.driver, 5).until(
             EC.element_to_be_clickable(self.locators.LOGIN_BUTTON)).click()
 
-    """Клик по разделу 'Лента заказов'"""
+    @allure.title('Клик по разделу "Лента заказов"')
     def click_order_lenta(self):
         try:
             WebDriverWait(self.driver, 15).until(
@@ -68,14 +68,14 @@ class Stellar_burger_page(BasePage):
         except TimeoutException:
             pass
 
-    """Клик по заказу в ленте"""
+    @allure.title('Клик по заказу в ленте')
     def click_order(self):
             try:
                 WebDriverWait(self.driver, 5).until(EC.element_to_be_clickable(self.locators.ORDER_LINK)).click()
             except TimeoutException:
                 print("Заказ не кликабелен")
 
-    """Список заказа не пустой"""
+    @allure.title('Список заказа не пустой')
     def test_order_not_empty(self):
         try:
             ul_element = WebDriverWait(self.driver, 5).until(
@@ -86,12 +86,17 @@ class Stellar_burger_page(BasePage):
         except TimeoutException:
             return False
 
-    """Клик по разделу 'Конструктор'"""
+    @allure.title('Клик по разделу "Конструктор"')
     def click_constructor(self):
         WebDriverWait(self.driver, 5).until(
             EC.element_to_be_clickable(self.locators.CONSTRUCT_BUTTON)).click()
 
-    """Проверка, открыто ли модальное окно заказа"""
+    @allure.title('Проверка, открыто ли модальное окно заказа')
     def order_modal_window_is_visible(self):
-        return self.driver.find_element(*self.locators.DETAILS_ORDERS).is_displayed()
-
+        try:
+            WebDriverWait(self.driver, 10).until(
+                EC.visibility_of_element_located(self.locators.MODAL_ORDER_NUMBER)
+            )
+            return True
+        except TimeoutException:
+            return False

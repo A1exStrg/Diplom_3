@@ -1,77 +1,92 @@
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common import NoSuchElementException
 from selenium.common import TimeoutException
+#
+# class BasePage:
+#     def __init__(self, driver, timeout=10):
+#         self.driver = driver
+#         self.wait = WebDriverWait(driver, timeout)
+#
+#     def click_and_wait_element(self, locator):
+#         try:
+#             element = self.wait.until(EC.element_to_be_clickable(locator))
+#             element.click()
+#         except Exception:
+#             print("Не удалось кликнуть по элементу")
+#
+#     def send_keys(self,locator, text):
+#         try:
+#             field = self.wait.until(EC.visibility_of_element_located(locator))
+#             field.clear()
+#             field.send_keys(text)
+#         except Exception:
+#             print("Ошибка при вводе значения")
+#
+#     def wait_for_url_contains(self, substring, timeout=10):
+#         try:
+#             WebDriverWait(self.driver, timeout).until(
+#                 lambda d: substring in d.current_url
+#             )
+#             return True
+#         except TimeoutException:
+#             print(f"URL не содержит '{substring}' в течение {timeout} сек. "
+#                   f"Текущий: {self.driver.current_url}")
+#             return False
 
 class BasePage:
     def __init__(self, driver, timeout=10):
         self.driver = driver
-        self.wait = WebDriverWait(driver, timeout)
+        self.timeout = timeout
 
-    """находим и кликаем по элементу"""
-    def click_and_wait_element(self, locator):
+    def find(self, locator):
+        return self.driver.find_element(*locator)
+
+    def click(self, locator):
+        element = WebDriverWait(self.driver, self.timeout).until(
+            EC.element_to_be_clickable(locator)
+        )
+        element.click()
+        return element
+
+    def is_visible(self, locator):
         try:
-            element = self.wait.until(EC.element_to_be_clickable(locator))
-            element.click()
-        except Exception:
-            print("Не удалось кликнуть по элементу")
-
-    """Ввод значения"""
-    def send_keys(self,locator, text):
-        try:
-            field = self.wait.until(EC.visibility_of_element_located(locator))
-            field.clear()
-            field.send_keys(text)
-        except Exception:
-            print("Ошибка при вводе значения")
-
-    # """Получение текста элемента"""
-    # def get_text(self, locator):
-    #     try:
-    #         return self.wait.until(EC.visibility_of_element_located(locator)).text
-    #     except Exception:
-    #         return None
-
-
-    # """Наличие элемента на странице"""
-    # def is_element_present(self, locator, wait=False):
-    #     try:
-    #         if wait:
-    #             self.wait.until(EC.presence_of_element_located(locator))
-    #         else:
-    #             self.driver.find_element(*locator)
-    #         return True
-    #     except (NoSuchElementException, TimeoutException):
-    #         return False
-
-    # """Общий метод для ожидания и клика по элементу"""
-    # def click_element(self, locator, timeout=10):
-    #     try:
-    #         WebDriverWait(self.driver, timeout).until(
-    #             EC.visibility_of_element_located(locator)
-    #         )
-    #         element = self.driver.find_element(*locator)
-    #         element.click()
-    #     except Exception as e:
-    #         print(f"Не удалось кликнуть по элементу: {e}")
-
-    """Ожидание загрузки"""
-    def wait_for_url_contains(self, substring, timeout=10):
-        try:
-            WebDriverWait(self.driver, timeout).until(
-                lambda d: substring in d.current_url
-            )
-            return True
-        except TimeoutException:
-            print(f"URL не содержит '{substring}' в течение {timeout} сек. "
-                  f"Текущий: {self.driver.current_url}")
+            return WebDriverWait(self.driver, self.timeout).until(
+                EC.visibility_of_element_located(locator)
+            ).is_displayed()
+        except:
             return False
 
-    # def get_text_safe(self, locator, timeout=7):
-    #     wait = WebDriverWait(self.driver, timeout)
-    #
-    #     def _get(d):
-    #         el = d.find_element(*locator)
-    #         return el.text
-    #
-    #     return wait.until(lambda d: _get(d))
+    def is_not_visible(self, locator):
+        try:
+            WebDriverWait(self.driver, self.timeout).until_not(
+                EC.visibility_of_element_located(locator)
+            )
+            return True
+        except:
+            return False
+
+    def wait_for_visible(self, locator):
+        """Ждать появления элемента и вернуть его"""
+        return WebDriverWait(self.driver, self.timeout).until(
+            EC.visibility_of_element_located(locator)
+        )
+
+    def wait_for_text(self, locator, text):
+        """Ждать появления текста внутри элемента"""
+        return WebDriverWait(self.driver, self.timeout).until(
+            EC.text_to_be_present_in_element(locator, text)
+        )
+
+    def click_and_wait_element(self, locator):
+        """Кликнуть и дождаться кликабельности элемента"""
+        return self.click(locator)
+
+    def wait_for_url_contains(self, url_part: str):
+        """Ждать, пока URL будет содержать часть строки"""
+        WebDriverWait(self.driver, self.timeout).until(
+            EC.url_contains(url_part)
+        )
+        return self.driver.current_url
+
+    def wait_for_condition(self, condition, timeout=5):
+        WebDriverWait(self.driver, timeout).until(condition)
