@@ -3,8 +3,6 @@ from page_objects.stellar_burger_page import Stellar_burger_page
 from page_objects.login_page import LoginPage
 from url import personal_profile_page, login_url_page
 
-
-
 class TestPersonalCab:
     @allure.title('Переход в «Личный кабинет»')
     def test_go_to_personal_cabinet(self, driver, user_creds):

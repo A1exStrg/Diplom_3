@@ -30,8 +30,6 @@ def driver(request):
     browser.get(stellar_burgers_base_url_page)
 
     yield browser
-
-    browser.close()
     browser.quit()
 
 @pytest.fixture
@@ -48,29 +46,30 @@ def login(driver, user_creds):
     main_page.click_login_button()
     return main_page, login_page
 
-
 @pytest.fixture
 def create_order(driver, login):
-    main_page = Stellar_burger_page(driver)
-    main_page, login_page = login
-    constr_page = ConstructorPage(driver)
-    order_page = OrdersPage(driver)
+    def create_order():
+        main_page = Stellar_burger_page(driver)
+        main_page, login_page = login
+        constr_page = ConstructorPage(driver)
+        order_page = OrdersPage(driver)
 
-    current_browser = driver.capabilities.get('browserName', '').lower()
+        current_browser = driver.capabilities.get('browserName', '').lower()
+        if current_browser != 'firefox':
+            main_page.click_constructor()
 
-    if current_browser != 'firefox':
-        main_page.click_constructor()
+        start_counter_value = constr_page.get_ingredient_counter_value(main_page.locators.INGREDIENT_COUNTER)
+        constr_page.move_ingredient(main_page.locators.INGREDIENT, main_page.locators.ORDER_AREA)
+        constr_page.wait_for_counter_update(main_page.locators.INGREDIENT_COUNTER, start_counter_value)
+        constr_page.click_place_an_order_button()
 
-    start_counter_value = constr_page.get_ingredient_counter_value(main_page.locators.INGREDIENT_COUNTER)
-    constr_page.move_ingredient(main_page.locators.INGREDIENT, main_page.locators.ORDER_AREA)
-    constr_page.wait_for_counter_update(main_page.locators.INGREDIENT_COUNTER, start_counter_value)
-    constr_page.click_place_an_order_button()
+        main_page.wait_for_condition(
+            lambda drv: main_page.order_modal_window_is_visible() and order_page.get_current_order_number() != "",
+            timeout=5
+        )
+        return order_page.get_current_order_number()
+    return create_order
 
-    main_page.wait_for_condition(
-        lambda drv: main_page.order_modal_window_is_visible() and order_page.get_current_order_number() != "",
-        timeout=5
-    )
-    return order_page.get_current_order_number()
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_addoption(parser):

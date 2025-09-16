@@ -1,7 +1,6 @@
 import allure
 from page_objects.stellar_burger_page import Stellar_burger_page
 from page_objects.login_page import LoginPage
-from page_objects.base_page import BasePage
 from url import recover_password_page, reset_password_page
 
 
@@ -40,19 +39,18 @@ class TestRecoverPassword:
     def test_high_password(self, driver):
         main_page = Stellar_burger_page(driver)
         login_page = LoginPage(driver)
-        base_page = BasePage(driver)
 
         main_page.click_on_personal_cabinet()
         login_page.click_recover_password()
         login_page.send_email_to_input(login_page.locators.EMAIL_FIELD)
         login_page.click_recover_button()
 
-        base_page.click(login_page.locators.PASSWORD_FIELD)
+        login_page.click(login_page.locators.PASSWORD_FIELD)
         login_page.send_password_to_input(login_page.locators.PASSWORD_FIELD)
 
-        base_page.click(login_page.locators.HIDE_GLASS)
+        login_page.click(login_page.locators.HIDE_GLASS)
 
-        active_field = base_page.wait_for_visible(login_page.locators.HIDE_GLASS)
+        active_field = login_page.wait_for_visible(login_page.locators.HIDE_GLASS)
 
         assert active_field.get_attribute("class"), "Пароль не подсвечен"
         assert active_field.is_enabled(), "Пароль не активный"

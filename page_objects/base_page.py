@@ -1,37 +1,5 @@
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common import TimeoutException
-#
-# class BasePage:
-#     def __init__(self, driver, timeout=10):
-#         self.driver = driver
-#         self.wait = WebDriverWait(driver, timeout)
-#
-#     def click_and_wait_element(self, locator):
-#         try:
-#             element = self.wait.until(EC.element_to_be_clickable(locator))
-#             element.click()
-#         except Exception:
-#             print("Не удалось кликнуть по элементу")
-#
-#     def send_keys(self,locator, text):
-#         try:
-#             field = self.wait.until(EC.visibility_of_element_located(locator))
-#             field.clear()
-#             field.send_keys(text)
-#         except Exception:
-#             print("Ошибка при вводе значения")
-#
-#     def wait_for_url_contains(self, substring, timeout=10):
-#         try:
-#             WebDriverWait(self.driver, timeout).until(
-#                 lambda d: substring in d.current_url
-#             )
-#             return True
-#         except TimeoutException:
-#             print(f"URL не содержит '{substring}' в течение {timeout} сек. "
-#                   f"Текущий: {self.driver.current_url}")
-#             return False
 
 class BasePage:
     def __init__(self, driver, timeout=10):
@@ -89,4 +57,24 @@ class BasePage:
         return self.driver.current_url
 
     def wait_for_condition(self, condition, timeout=5):
-        WebDriverWait(self.driver, timeout).until(condition)
+        return WebDriverWait(self.driver, timeout).until(condition)
+
+
+    """Добавлено новое"""
+
+    def wait_for_invisibility(self, locator):
+        """Ждать исчезновения элемента"""
+        return WebDriverWait(self.driver, self.timeout).until(
+            EC.invisibility_of_element_located(locator)
+        )
+
+    def get_browser_name(self):
+        """Возвращает имя браузера (chrome, firefox и т.д.)"""
+        return self.driver.capabilities.get('browserName', '').lower()
+
+    def js_click(self, element):
+        """Клик по элементу через JavaScript"""
+        self.driver.execute_script("arguments[0].click();", element)
+
+    def find_all(self, locator):
+        return self.driver.find_elements(*locator)

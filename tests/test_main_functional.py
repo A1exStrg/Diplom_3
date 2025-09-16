@@ -38,14 +38,13 @@ class TestStellarBurger:
         assert construct_page.ingredient_modal_window_is_close(), "Всплывающее окно не закрыто крестиком"
 
     @allure.title('При добавлении ингредиента в заказ, увеличивается каунтер данного ингредиента')
-    def test_increases_counter_put_ingredient_to_order(self, driver, create_order2):
+    def test_increases_counter_put_ingredient_to_order(self, create_order2):
 
         start_counter_value, updated_count = create_order2
         assert updated_count > start_counter_value, (
             f"Каунтер не увеличился: {start_counter_value} -> {updated_count}"
         )
     @allure.title('Залогиненный пользователь может оформить заказ.')
-
-    def test_login_user_can_took_an_order(self, driver, create_order):
+    def test_login_user_can_took_an_order(self, create_order):
         order_number = create_order
         assert order_number != "", "Окно с заказом не появилось или номер заказа пустой"
