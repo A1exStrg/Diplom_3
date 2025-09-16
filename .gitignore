@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.pyc
+
+# Environments
+.env
+.venv/
+env/
+venv/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Pytest
+.cache/
+.pytest_cache/
+*.cover
+.coverage
+
+# Allure
+
+allure-report/
+
+# Logs
+*.log
+
+# OS files
+.DS_St_

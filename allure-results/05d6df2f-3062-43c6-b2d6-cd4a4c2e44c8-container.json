@@ -1,0 +1,1 @@
+{"uuid": "a25e701e-17f8-45d2-9bf3-c399326cc308", "children": ["2904b9a7-d55c-4cae-a3a6-d781bc6b7bba"], "befores": [{"name": "login", "status": "passed", "steps": [{"name": "Клик по кнопке 'Личный кабинет'", "status": "passed", "start": 1758061324035, "stop": 1758061324164}], "start": 1758061324033, "stop": 1758061324505}], "start": 1758061324033, "stop": 1758061324507}
